@@ -5,31 +5,17 @@
   "types": "./index.ts",
   "scripts": {
     "clean": "git clean -xdf .cache .turbo dist node_modules",
-    "migrate:dev": "DOTENV_CONFIG_PATH=../../.env.local tsx migrations/run.ts dev up",
-    "migrate:dev:up": "DOTENV_CONFIG_PATH=../../.env.local tsx migrations/run.ts dev up",
-    "migrate:dev:down": "DOTENV_CONFIG_PATH=../../.env.local tsx migrations/run.ts dev down",
-    "migrate:dev:status": "DOTENV_CONFIG_PATH=../../.env.local tsx migrations/run.ts dev status",
-    "migrate:prod": "DOTENV_CONFIG_PATH=../../.env.local tsx migrations/run.ts prod up",
-    "migrate:prod:up": "DOTENV_CONFIG_PATH=../../.env.local tsx migrations/run.ts prod up",
-    "migrate:prod:down": "DOTENV_CONFIG_PATH=../../.env.local tsx migrations/run.ts prod down",
-    "migrate:prod:status": "DOTENV_CONFIG_PATH=../../.env.local tsx migrations/run.ts prod status",
-    "seed:dev": "DOTENV_CONFIG_PATH=../../.env.local tsx seeds/seed.ts dev",
-    "seed:prod": "DOTENV_CONFIG_PATH=../../.env.local tsx seeds/seed.ts prod",
     "typecheck": "tsc --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.0.2",
-    "better-auth": "^1.4.7",
-    "dotenv": "^17.2.3",
     "kysely": "^0.28",
     "kysely-neon": "^2.0.2",
-    "server-only": "^0.0.1",
-    "zod": "^4.1.13"
+    "server-only": "^0.0.1"
   },
   "devDependencies": {
     "@repo/typescript-config": "workspace:*",
     "@types/node": "24.10.1",
-    "tsx": "^4.19.2",
     "typescript": "^5.9.3"
   }
 }

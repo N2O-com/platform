@@ -1,10 +1,7 @@
 "use client";
 
-import { useEditController, EditBase as RaEdit, useNotify, useRedirect } from "ra-core";
-import { useUpdate } from "ra-core";
-import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
+import { Button } from "@repo/design/components/ui/button";
 import {
   Card,
   CardContent,
@@ -12,15 +9,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@repo/design/components/ui/card";
-import { Button } from "@repo/design/components/ui/button";
-import { Input } from "@repo/design/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@repo/design/components/ui/select";
 import {
   Form,
   FormControl,
@@ -29,7 +17,24 @@ import {
   FormLabel,
   FormMessage,
 } from "@repo/design/components/ui/form";
+import { Input } from "@repo/design/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@repo/design/components/ui/select";
 import { ArrowLeftIcon } from "lucide-react";
+import {
+  EditBase as RaEdit,
+  useEditController,
+  useNotify,
+  useRedirect,
+  useUpdate,
+} from "ra-core";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 
 const userSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -86,7 +91,7 @@ const UserEditInner = () => {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center p-8">
-        <p className="text-muted-foreground">Loading user...</p>
+        <p className="text-muted-foreground">Loading user…</p>
       </div>
     );
   }
@@ -96,9 +101,9 @@ const UserEditInner = () => {
       <CardHeader>
         <div className="flex items-center gap-4">
           <Button
-            variant="ghost"
+            onClick={() => redirect("list", "users")}
             size="icon"
-            onClick={() => redirect("/users")}
+            variant="ghost"
           >
             <ArrowLeftIcon className="size-4" />
           </Button>
@@ -110,7 +115,7 @@ const UserEditInner = () => {
       </CardHeader>
       <CardContent>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
             <FormField
               control={form.control}
               name="name"
@@ -157,8 +162,8 @@ const UserEditInner = () => {
                 <FormItem>
                   <FormLabel>Role</FormLabel>
                   <Select
-                    value={field.value || ""}
                     onValueChange={(value) => field.onChange(value || null)}
+                    value={field.value || ""}
                   >
                     <FormControl>
                       <SelectTrigger>
@@ -177,9 +182,9 @@ const UserEditInner = () => {
             <div className="flex gap-2">
               <Button type="submit">Save Changes</Button>
               <Button
+                onClick={() => redirect("list", "users")}
                 type="button"
                 variant="outline"
-                onClick={() => redirect("/users")}
               >
                 Cancel
               </Button>
@@ -191,12 +196,10 @@ const UserEditInner = () => {
   );
 };
 
-export const UserEdit = () => {
-  return (
-    <div className="container mx-auto py-8 px-4">
-      <RaEdit>
-        <UserEditInner />
-      </RaEdit>
-    </div>
-  );
-};
+export const UserEdit = () => (
+  <div className="container mx-auto px-4 py-8">
+    <RaEdit>
+      <UserEditInner />
+    </RaEdit>
+  </div>
+);

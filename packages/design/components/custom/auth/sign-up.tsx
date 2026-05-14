@@ -1,5 +1,8 @@
 "use client";
 
+import { zodResolver } from "@hookform/resolvers/zod";
+import { signUp } from "@repo/auth/client";
+import { Alert, AlertDescription } from "@repo/design/components/ui/alert";
 import { Button } from "@repo/design/components/ui/button";
 import {
   Form,
@@ -10,14 +13,12 @@ import {
   FormMessage,
 } from "@repo/design/components/ui/form";
 import { Input } from "@repo/design/components/ui/input";
-import { Alert, AlertDescription } from "@repo/design/components/ui/alert";
-import { signUp } from "@repo/auth/client";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import { AlertCircle, CheckCircle } from "lucide-react";
-import * as React from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+import * as React from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 
 const signUpSchema = z.object({
   name: z.string().min(2, {
@@ -34,6 +35,9 @@ const signUpSchema = z.object({
 type SignUpFormValues = z.infer<typeof signUpSchema>;
 
 export const SignUpForm = () => {
+  const searchParams = useSearchParams();
+  const returnTo = searchParams.get("returnTo");
+
   const form = useForm<SignUpFormValues>({
     resolver: zodResolver(signUpSchema),
     defaultValues: {
@@ -58,16 +62,11 @@ export const SignUpForm = () => {
           email: values.email,
           password: values.password,
           name: values.name,
-          callbackURL: "/verify-email",
+          callbackURL: returnTo ?? "/verify-email",
         },
         {
           onSuccess: () => {
-            // Show success message
             setSuccess(true);
-            // Redirect after a short delay
-            setTimeout(() => {
-              window.location.href = "/";
-            }, 2000);
           },
         }
       );
@@ -86,7 +85,9 @@ export const SignUpForm = () => {
   return (
     <div className="space-y-6">
       <div className="space-y-2 text-center">
-        <h1 className="text-2xl font-semibold tracking-tight">Create an account</h1>
+        <h1 className="font-semibold text-2xl tracking-tight">
+          Create an account
+        </h1>
         <p className="text-muted-foreground text-sm">
           Enter your information to get started
         </p>
@@ -114,7 +115,7 @@ export const SignUpForm = () => {
               <FormItem>
                 <FormLabel>Name</FormLabel>
                 <FormControl>
-                  <Input type="text" placeholder="John Doe" {...field} />
+                  <Input placeholder="John Doe" type="text" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -127,7 +128,11 @@ export const SignUpForm = () => {
               <FormItem>
                 <FormLabel>Email</FormLabel>
                 <FormControl>
-                  <Input type="email" placeholder="name@example.com" {...field} />
+                  <Input
+                    placeholder="name@example.com"
+                    type="email"
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -140,20 +145,27 @@ export const SignUpForm = () => {
               <FormItem>
                 <FormLabel>Password</FormLabel>
                 <FormControl>
-                  <Input type="password" placeholder="••••••••" {...field} />
+                  <Input placeholder="••••••••" type="password" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
-          <Button type="submit" className="w-full" disabled={submitting}>
+          <Button className="w-full" disabled={submitting} type="submit">
             {submitting ? "Creating account..." : "Create account"}
           </Button>
         </form>
       </Form>
-      <p className="text-muted-foreground text-center text-sm">
+      <p className="text-center text-muted-foreground text-sm">
         Already have an account?{" "}
-        <Link href="/sign-in" className="hover:underline font-medium">
+        <Link
+          className="font-medium hover:underline"
+          href={
+            returnTo
+              ? `/sign-in?returnTo=${encodeURIComponent(returnTo)}`
+              : "/sign-in"
+          }
+        >
           Sign in
         </Link>
       </p>

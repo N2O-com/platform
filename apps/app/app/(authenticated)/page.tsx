@@ -1,7 +1,7 @@
-import { auth } from "@repo/auth/server";
 import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { notFound } from "next/navigation";
+import { auth } from "@/lib/auth";
 
 const title = "Platform";
 const description = "My application.";
@@ -19,9 +19,7 @@ const App = async () => {
     notFound();
   }
 
-  return (
-      <></>
-  );
+  return <></>;
 };
 
 export default App;

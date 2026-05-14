@@ -1,19 +1,12 @@
 {
   "$schema": "https://turborepo.com/schema.json",
   "globalDependencies": ["**/.env.*local"],
-  "globalEnv": [
-    "NODE_ENV"
-  ],
+  "globalEnv": ["NODE_ENV"],
   "ui": "tui",
   "tasks": {
     "build": {
       "dependsOn": ["^build", "test"],
-      "outputs": [
-        ".next/**",
-        "!.next/cache/**",
-        "**/generated/**",
-        ".react-email/**"
-      ],
+      "outputs": [".next/**", "!.next/cache/**", "**/generated/**"],
       "env": [
         "DATABASE_URL_*",
         "BETTER_AUTH_SECRET",
@@ -48,15 +41,16 @@
     },
     "test": {
       "dependsOn": ["^test"],
-      "env": [
-        "DATABASE_URL_*",
-        "BETTER_AUTH_SECRET",
-        "NEXT_PUBLIC_*"
-      ]
+      "env": ["DATABASE_URL_*", "BETTER_AUTH_SECRET", "NEXT_PUBLIC_*"]
     },
     "analyze": {
       "dependsOn": ["^analyze"],
       "env": ["ANALYZE"]
+    },
+    "dev:mock": {
+      "cache": false,
+      "persistent": true,
+      "env": ["NEXT_PUBLIC_*", "NEXT_RUNTIME"]
     },
     "dev": {
       "cache": false,

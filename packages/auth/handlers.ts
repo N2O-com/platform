@@ -1,6 +1,6 @@
 import "server-only";
 
 import { toNextJsHandler } from "better-auth/next-js";
-import { auth } from "./server";
+import type { Auth } from "./server";
 
-export const { POST, GET } = toNextJsHandler(auth);
+export const createAuthHandlers = (auth: Auth) => toNextJsHandler(auth);

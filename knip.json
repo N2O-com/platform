@@ -1,0 +1,53 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "workspaces": {
+    ".": {
+      "entry": ["turbo/generators/config.ts"],
+      "ignoreDependencies": ["@repo/typescript-config"]
+    },
+    "apps/*": {
+      "entry": [
+        "app/**/{page,layout,loading,error,not-found,template,default,route,global-error}.{ts,tsx}",
+        "app/**/{opengraph,twitter}-image.{ts,tsx}",
+        "app/**/{sitemap,robots,manifest}.{ts,ts,tsx}",
+        "app/api/**/route.ts",
+        "middleware.ts",
+        "instrumentation.ts",
+        "instrumentation-client.ts",
+        "next.config.{js,ts,mjs}",
+        "tailwind.config.{js,ts}",
+        "postcss.config.{js,mjs,ts}",
+        "mocks/browser.ts",
+        "mocks/server.ts",
+        "mocks/handlers/index.ts"
+      ],
+      "ignore": ["**/.next/**", "**/.turbo/**", "**/node_modules/**"]
+    },
+    "packages/*": {
+      "entry": ["index.{ts,tsx}", "src/index.{ts,tsx}"],
+      "project": ["**/*.{ts,tsx}!"],
+      "ignore": ["**/dist/**", "**/.turbo/**", "**/node_modules/**"]
+    },
+    "packages/database": {
+      "entry": [
+        "index.ts",
+        "migrations/runner.ts",
+        "migrations/*.ts",
+        "schemas/**/*.ts",
+        "seeds/**/*.ts"
+      ]
+    },
+    "packages/design": {
+      "entry": [
+        "index.ts",
+        "components/**/*.{ts,tsx}",
+        "hooks/**/*.{ts,tsx}",
+        "lib/**/*.{ts,tsx}",
+        "providers/**/*.{ts,tsx}",
+        "styles/**/*.css"
+      ]
+    }
+  },
+  "ignoreBinaries": ["only-allow"],
+  "ignoreDependencies": ["sharp"]
+}

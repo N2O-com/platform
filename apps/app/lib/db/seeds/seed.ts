@@ -59,33 +59,36 @@ async function seed() {
       email: string;
     }> = [];
 
-    for (const userInfo of userData) {
-      try {
-        // Create user via Better Auth API
-        const result = await auth.api.signUpEmail({
-          body: {
+    await Promise.all(
+      userData.map(async (userInfo) => {
+        try {
+          const result = await auth.api.signUpEmail({
+            body: {
+              email: userInfo.email,
+              password: userInfo.password,
+              name: userInfo.name,
+            },
+          });
+
+          if ("error" in result) {
+            console.error(
+              `Error creating user ${userInfo.email}:`,
+              result.error
+            );
+            return;
+          }
+
+          createdUsers.push({
+            id: result.user.id,
             email: userInfo.email,
-            password: userInfo.password,
-            name: userInfo.name,
-          },
-        });
+          });
 
-        if ("error" in result) {
-          console.error(`Error creating user ${userInfo.email}:`, result.error);
-          continue;
+          console.log(`✓ Created user: ${userInfo.email}`);
+        } catch (error) {
+          console.error(`Exception creating user ${userInfo.email}:`, error);
         }
-
-        const userId = result.user.id;
-        createdUsers.push({
-          id: userId,
-          email: userInfo.email,
-        });
-
-        console.log(`✓ Created user: ${userInfo.email}`);
-      } catch (error) {
-        console.error(`Exception creating user ${userInfo.email}:`, error);
-      }
-    }
+      })
+    );
   } catch (error) {
     console.error("Exception seeding database:", error);
   } finally {

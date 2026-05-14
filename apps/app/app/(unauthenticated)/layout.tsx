@@ -1,8 +1,7 @@
-import { auth } from "@repo/auth/server";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { ModeToggle } from "@repo/design/components/mode-toggle";
 import type { ReactNode } from "react";
+import { auth } from "@/lib/auth";
 
 type AuthLayoutProps = {
   readonly children: ReactNode;
@@ -26,7 +25,7 @@ const AuthLayout = async ({ children }: AuthLayoutProps) => {
         </div>
       </div>
       <div className="lg:p-8">
-        <div className="mx-auto flex w-full max-w-[400px] flex-col justify-center space-y-6">
+        <div className="mx-auto flex w-full max-w-[400px] flex-col justify-center gap-y-6">
           {children}
         </div>
       </div>

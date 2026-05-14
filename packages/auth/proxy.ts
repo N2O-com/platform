@@ -15,7 +15,7 @@ export function authMiddleware(
   ) {
     const { pathname } = request.nextUrl;
 
-    // Define public routes (unauthenticated pages)
+    // Unauthenticated-only routes — signed-in users get bounced to /
     const publicRoutes = [
       "/sign-in",
       "/sign-up",
@@ -24,12 +24,16 @@ export function authMiddleware(
       "/verify-email",
     ];
 
-    // Check if current path is a public route
+    // Routes that allow both signed-in and signed-out access
+    const neutralRoutes = ["/accept-invitation"];
+
     const isPublicRoute = publicRoutes.some((route) =>
       pathname.startsWith(route)
     );
+    const isNeutralRoute = neutralRoutes.some((route) =>
+      pathname.startsWith(route)
+    );
 
-    // Always allow API auth routes
     if (pathname.startsWith("/api/auth")) {
       return NextResponse.next();
     }
@@ -37,27 +41,29 @@ export function authMiddleware(
     const sessionCookie = getSessionCookie(request);
     const authorized = Boolean(sessionCookie);
 
-    // Run custom middleware function if provided
     if (middlewareFn) {
       const response = await middlewareFn(
         { req: request, authorized },
         request,
         event
       );
-
       if (response && response.headers.get("Location")) {
         return response;
       }
     }
 
-    // Redirect authenticated users away from public routes
+    if (isNeutralRoute) {
+      return NextResponse.next();
+    }
+
     if (authorized && isPublicRoute) {
       return NextResponse.redirect(new URL("/", request.url));
     }
 
-    // Redirect unauthenticated users to sign-in
-    if (!authorized && !isPublicRoute) {
-      return NextResponse.redirect(new URL("/sign-in", request.url));
+    if (!(authorized || isPublicRoute)) {
+      const signInUrl = new URL("/sign-in", request.url);
+      signInUrl.searchParams.set("returnTo", pathname);
+      return NextResponse.redirect(signInUrl);
     }
 
     return NextResponse.next();

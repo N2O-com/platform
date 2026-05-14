@@ -1,12 +1,8 @@
-import { type Kysely, FileMigrationProvider, Migrator } from "kysely";
 import { promises as fs } from "node:fs";
 import { join } from "node:path";
-import type { Database } from "../schemas/main";
+import { FileMigrationProvider, type Kysely, Migrator } from "kysely";
 
-/**
- * Creates a migrator instance using Kysely's official FileMigrationProvider
- */
-function createMigrator(db: Kysely<Database>, migrationsDir: string): Migrator {
+function createMigrator(db: Kysely<any>, migrationsDir: string): Migrator {
   return new Migrator({
     db,
     provider: new FileMigrationProvider({
@@ -21,7 +17,7 @@ function createMigrator(db: Kysely<Database>, migrationsDir: string): Migrator {
  * Runs pending migrations
  */
 export async function runMigrations(
-  db: Kysely<Database>,
+  db: Kysely<any>,
   migrationsDir: string,
   options: {
     dryRun?: boolean;
@@ -162,7 +158,7 @@ export async function runMigrations(
  * Rolls back migrations
  */
 export async function rollbackMigrations(
-  db: Kysely<Database>,
+  db: Kysely<any>,
   migrationsDir: string,
   options: {
     count?: number;
@@ -190,7 +186,9 @@ export async function rollbackMigrations(
 
     // Validate all requested migrations exist and are applied
     const appliedNames = new Set(appliedMigrations.map((m) => m.name));
-    const missing = options.migrations.filter((name) => !appliedNames.has(name));
+    const missing = options.migrations.filter(
+      (name) => !appliedNames.has(name)
+    );
     if (missing.length > 0) {
       const appliedNamesList = appliedMigrations.map((m) => m.name);
       throw new Error(
@@ -232,7 +230,7 @@ export async function rollbackMigrations(
         const { error } = await migrator.migrateDown();
 
         if (error) {
-          console.error(`✗ Rollback failed:`, error);
+          console.error("✗ Rollback failed:", error);
           throw error;
         }
 
@@ -280,7 +278,9 @@ export async function rollbackMigrations(
 
     // Get current migrations and rollback until we reach the target
     const appliedMigrations = await migrator.getMigrations();
-    const targetIndex = appliedMigrations.findIndex((m) => m.name === options.to);
+    const targetIndex = appliedMigrations.findIndex(
+      (m) => m.name === options.to
+    );
 
     if (targetIndex === -1) {
       throw new Error(`Migration "${options.to}" not found or not applied`);
@@ -290,7 +290,9 @@ export async function rollbackMigrations(
     const toRollback = appliedMigrations.slice(targetIndex + 1).reverse();
 
     if (toRollback.length === 0) {
-      console.log(`✓ No migrations to rollback (already at or before "${options.to}")`);
+      console.log(
+        `✓ No migrations to rollback (already at or before "${options.to}")`
+      );
       return;
     }
 
@@ -333,7 +335,7 @@ export async function rollbackMigrations(
  * Shows migration status
  */
 export async function showMigrationStatus(
-  db: Kysely<Database>,
+  db: Kysely<any>,
   migrationsDir: string
 ): Promise<void> {
   const migrator = createMigrator(db, migrationsDir);

@@ -1,0 +1,40 @@
+# Pre-commit hooks. Bypass with `git commit --no-verify`.
+
+pre-commit:
+  parallel: false
+  jobs:
+    # --- Blocking lane (build-breaking) ---
+
+    - name: merge-conflict-markers
+      run: |
+        if echo "{staged_files}" | tr ' ' '\n' | xargs -r grep -lE '^(<{7}|={7}|>{7}) ' 2>/dev/null | grep .; then
+          echo "✖ Merge-conflict markers found in staged files."
+          exit 1
+        fi
+
+    - name: typecheck-affected
+      run: pnpm exec turbo run typecheck --filter="...[HEAD]" --output-logs=errors-only
+
+    # --- Auto-fix lane (re-stages fixes; never blocks) ---
+
+    - name: ultracite-fix
+      glob: "*.{ts,tsx,js,jsx,mjs,cjs,json,jsonc,css}"
+      # Biome rules are not part of `turbo build`, so don't block on them.
+      # Auto-fix what's fixable, re-stage, and let unfixable issues surface as warnings.
+      run: pnpm exec ultracite fix {staged_files} || true
+      stage_fixed: true
+
+    # --- Warn-only lane (never blocks) ---
+
+    - name: warn
+      run: sh ./scripts/precommit-warn.sh || true
+
+# Pre-push hooks. Bypass with `git push --no-verify`.
+pre-push:
+  parallel: false
+  jobs:
+    - name: build-affected
+      run: pnpm exec turbo run build --affected --output-logs=errors-only
+
+    - name: test-affected
+      run: pnpm exec turbo run test --affected --output-logs=errors-only

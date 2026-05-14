@@ -26,28 +26,28 @@ const GlobalError = ({ error, reset }: GlobalErrorProperties) => {
     <html className={fonts} lang="en">
       <body className="min-h-screen bg-background antialiased">
         <div className="flex min-h-screen flex-col items-center justify-center px-4">
-          <div className="mx-auto max-w-md w-full text-center space-y-6">
+          <div className="mx-auto w-full max-w-md space-y-6 text-center">
             <div className="flex justify-center">
               <div className="rounded-full bg-destructive/10 p-4">
-                <AlertTriangle className="h-8 w-8 text-destructive" />
+                <AlertTriangle className="size-8 text-destructive" />
               </div>
             </div>
             <div className="space-y-2">
-              <h1 className="text-3xl font-semibold tracking-tight text-foreground">
+              <h1 className="font-semibold text-3xl text-foreground tracking-tight">
                 Something went wrong
               </h1>
               <p className="text-muted-foreground">
                 We encountered an unexpected error. Please try again.
               </p>
             </div>
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <div className="flex flex-col justify-center gap-3 sm:flex-row">
               <Button onClick={() => reset()} size="lg">
                 Try again
               </Button>
               <Button
                 onClick={() => (window.location.href = "/sign-in")}
-                variant="outline"
                 size="lg"
+                variant="outline"
               >
                 Go to sign in
               </Button>

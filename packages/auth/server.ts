@@ -1,43 +1,81 @@
 import "server-only";
 
-import { pool } from "@repo/database";
-import { betterAuth } from "better-auth";
-import { admin } from "better-auth/plugins";
+import { type BetterAuthOptions, betterAuth } from "better-auth";
 import { nextCookies } from "better-auth/next-js";
+import { admin, organization } from "better-auth/plugins";
 import { headers } from "next/headers";
-import { sendVerificationEmail, sendPasswordResetEmail } from "@repo/email";
 
-export const auth = betterAuth({
-  database: pool,
-  secret: process.env.BETTER_AUTH_SECRET,
-  baseURL: process.env.NEXT_PUBLIC_APP_URL,
-  emailAndPassword: {
-    enabled: true,
-    requireEmailVerification: true, // Users must verify email before signing in
-    sendResetPassword: async ({ user, url }) => {
-      await sendPasswordResetEmail({
-        to: user.email,
-        name: user.name,
-        resetUrl: url,
-      });
-    },
-  },
-  emailVerification: {
-    sendVerificationEmail: async ({ user, url }) => {
-      await sendVerificationEmail({
-        to: user.email,
-        name: user.name,
-        verificationUrl: url,
-      });
-    },
-    sendOnSignUp: true,
-    autoSignInAfterVerification: true,
-  },
-  plugins: [nextCookies(), admin()],
-});
+type EmailParams = { user: { email: string; name: string }; url: string };
 
-export const currentUser = async () => {
+type InvitationEmailParams = {
+  email: string;
+  inviterName: string;
+  organizationName: string;
+  inviteUrl: string;
+  role: string;
+};
+
+export type AuthConfig = {
+  database: BetterAuthOptions["database"];
+  secret?: string;
+  baseURL?: string;
+  sendVerificationEmail: (params: EmailParams) => Promise<void>;
+  sendPasswordResetEmail: (params: EmailParams) => Promise<void>;
+  sendInvitationEmail: (params: InvitationEmailParams) => Promise<void>;
+};
+
+export const createAuth = (config: AuthConfig) => {
+  const baseURL = config.baseURL ?? process.env.NEXT_PUBLIC_APP_URL;
+  return betterAuth({
+    database: config.database,
+    secret: config.secret ?? process.env.BETTER_AUTH_SECRET,
+    baseURL,
+    session: {
+      cookieCache: { enabled: true, maxAge: 5 * 60 },
+    },
+    emailAndPassword: {
+      enabled: true,
+      requireEmailVerification: true,
+      sendResetPassword: async ({ user, url }) => {
+        await config.sendPasswordResetEmail({ user, url });
+      },
+    },
+    emailVerification: {
+      sendVerificationEmail: async ({ user, url }) => {
+        await config.sendVerificationEmail({ user, url });
+      },
+      sendOnSignUp: true,
+      autoSignInAfterVerification: true,
+    },
+    plugins: [
+      nextCookies(),
+      admin(),
+      organization({
+        teams: { enabled: true },
+        sendInvitationEmail: async (data) => {
+          const inviteUrl = `${baseURL}/accept-invitation/${data.id}`;
+          await config.sendInvitationEmail({
+            email: data.email,
+            inviterName: data.inviter.user.name,
+            organizationName: data.organization.name,
+            inviteUrl,
+            role: data.role,
+          });
+        },
+      }),
+    ],
+  });
+};
+
+export type Auth = ReturnType<typeof createAuth>;
+
+export const getCurrentUser = async (auth: Auth) => {
   const h = await headers();
   const session = await auth.api.getSession({ headers: h });
   return session?.user ?? null;
+};
+
+export const getCurrentSession = async (auth: Auth) => {
+  const h = await headers();
+  return auth.api.getSession({ headers: h });
 };

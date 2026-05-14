@@ -7,37 +7,24 @@ export const Header = () => {
   const { appName } = config;
 
   return (
-    <nav className="fixed top-0 w-full z-50 bg-background/80 backdrop-blur-xl border-b border-border/50">
-      <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-        <div className="flex items-center gap-10">
-          <Link href="/" className="text-foreground font-semibold tracking-tight text-lg">
-            {appName}
-          </Link>
-          <div className="hidden md:flex items-center gap-6 text-sm text-muted-foreground font-medium">
-            <Link href="#" className="hover:text-foreground transition-colors">
-              Products
-            </Link>
-            <Link href="#" className="hover:text-foreground transition-colors">
-              Solutions
-            </Link>
-            <Link href="#" className="hover:text-foreground transition-colors">
-              Developers
-            </Link>
-            <Link href="#" className="hover:text-foreground transition-colors">
-              Pricing
-            </Link>
-          </div>
-        </div>
+    <nav className="fixed top-0 z-50 w-full border-border/50 border-b bg-background/80 backdrop-blur-xl">
+      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
+        <Link
+          className="font-semibold text-foreground text-lg tracking-tight"
+          href="/"
+        >
+          {appName}
+        </Link>
         <div className="flex items-center gap-6">
           <Link
+            className="hidden font-medium text-foreground text-sm transition-colors hover:text-muted-foreground sm:block"
             href={`${process.env.NEXT_PUBLIC_APP_URL}/sign-in`}
-            className="text-sm text-foreground font-medium hover:text-muted-foreground transition-colors hidden sm:block"
           >
             Sign In
           </Link>
           <Link
+            className="rounded-full bg-card px-4 py-2 font-semibold text-card-foreground text-sm transition-colors hover:bg-accent"
             href={`${process.env.NEXT_PUBLIC_APP_URL}/sign-up`}
-            className="text-sm bg-card text-card-foreground px-4 py-2 rounded-full font-semibold hover:bg-accent transition-colors"
           >
             Get Started
           </Link>

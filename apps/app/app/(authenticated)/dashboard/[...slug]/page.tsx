@@ -6,7 +6,7 @@ import dynamic from "next/dynamic";
 // This catch-all route allows ra-core's react-router to handle all internal routing
 const AdminDashboard = dynamic(() => import("../admin-client"), {
   ssr: false,
-  loading: () => <div>Loading admin dashboard...</div>,
+  loading: () => <div>Loading admin dashboard…</div>,
 });
 
 export default function DashboardCatchAll() {

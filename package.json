@@ -4,16 +4,23 @@
   "scripts": {
     "build": "turbo build",
     "dev": "turbo dev",
+    "dev:mock": "turbo dev:mock --filter=app",
     "typecheck": "turbo typecheck",
     "check": "npx ultracite@latest check",
     "fix": "npx ultracite@latest fix",
     "test": "turbo test",
+    "doctor": "react-doctor -y",
+    "doctor:staged": "react-doctor --staged",
+    "knip": "knip",
+    "syncpack": "syncpack list-mismatches",
+    "syncpack:fix": "syncpack fix-mismatches && syncpack format",
     "analyze": "turbo analyze",
     "translate": "turbo translate",
     "boundaries": "turbo boundaries",
     "bump-deps": "npx npm-check-updates --deep -u -x recharts && pnpm install",
     "bump-ui": "npx shadcn@latest add --all --overwrite -c packages/design",
-    "clean": "git clean -xdf node_modules"
+    "clean": "git clean -xdf node_modules",
+    "prepare": "lefthook install"
   },
   "devDependencies": {
     "@auto-it/first-time-contributor": "^11.3.6",
@@ -21,6 +28,11 @@
     "@repo/typescript-config": "workspace:*",
     "@turbo/gen": "^2.6.3",
     "@types/node": "^24.10.1",
+    "knip": "^6.13.1",
+    "lefthook": "^2.1.6",
+    "msw": "^2.12.7",
+    "react-doctor": "^0.1.6",
+    "syncpack": "^15.1.2",
     "turbo": "^2.6.3",
     "typescript": "^5.9.3",
     "ultracite": "6.3.9"

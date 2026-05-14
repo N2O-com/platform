@@ -6,6 +6,10 @@ const API_URL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
 export const dataProvider: DataProvider = {
   getList: async (resource, params) => {
+    if (resource === "organizations") {
+      // Handled by react-query in OrganizationList; ra-core only needs routing here
+      return { data: [], total: 0 };
+    }
     if (resource !== "users") {
       throw new Error(`Unknown resource: ${resource}`);
     }
@@ -30,10 +34,13 @@ export const dataProvider: DataProvider = {
       queryParams.append("searchOperator", "contains");
     }
 
-    const response = await fetch(`${API_URL}/api/auth/admin/list-users?${queryParams}`, {
-      method: "GET",
-      credentials: "include",
-    });
+    const response = await fetch(
+      `${API_URL}/api/auth/admin/list-users?${queryParams}`,
+      {
+        method: "GET",
+        credentials: "include",
+      }
+    );
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
@@ -48,11 +55,17 @@ export const dataProvider: DataProvider = {
   },
 
   getOne: async (resource, params) => {
+    if (resource === "organizations") {
+      // Handled by react-query in OrganizationEdit
+      return { data: { id: params.id } };
+    }
     if (resource !== "users") {
       throw new Error(`Unknown resource: ${resource}`);
     }
 
-    const response = await fetch(`${API_URL}/api/auth/admin/list-users`, {
+    const url = new URL(`${API_URL}/api/auth/admin/get-user`);
+    url.searchParams.set("userId", String(params.id));
+    const response = await fetch(url, {
       method: "GET",
       credentials: "include",
     });
@@ -62,13 +75,10 @@ export const dataProvider: DataProvider = {
     }
 
     const data = await response.json();
-    const user = data.users?.find((u: { id: string }) => u.id === params.id);
-
-    if (!user) {
+    if (!data?.user) {
       throw new Error(`User not found: ${params.id}`);
     }
-
-    return { data: user };
+    return { data: data.user };
   },
 
   getMany: async (resource, params) => {
@@ -86,9 +96,9 @@ export const dataProvider: DataProvider = {
     }
 
     const data = await response.json();
-    const users = data.users?.filter((u: { id: string }) =>
-      params.ids.includes(u.id)
-    ) || [];
+    const users =
+      data.users?.filter((u: { id: string }) => params.ids.includes(u.id)) ||
+      [];
 
     return { data: users };
   },
@@ -112,8 +122,12 @@ export const dataProvider: DataProvider = {
     });
 
     if (!response.ok) {
-      const error = await response.json().catch(() => ({ message: "Unknown error" }));
-      throw new Error(error.message || `HTTP error! status: ${response.status}`);
+      const error = await response
+        .json()
+        .catch(() => ({ message: "Unknown error" }));
+      throw new Error(
+        error.message || `HTTP error! status: ${response.status}`
+      );
     }
 
     const data = await response.json();
@@ -139,8 +153,12 @@ export const dataProvider: DataProvider = {
     });
 
     if (!response.ok) {
-      const error = await response.json().catch(() => ({ message: "Unknown error" }));
-      throw new Error(error.message || `HTTP error! status: ${response.status}`);
+      const error = await response
+        .json()
+        .catch(() => ({ message: "Unknown error" }));
+      throw new Error(
+        error.message || `HTTP error! status: ${response.status}`
+      );
     }
 
     const data = await response.json();
@@ -171,7 +189,7 @@ export const dataProvider: DataProvider = {
       throw new Error(`Unknown resource: ${resource}`);
     }
 
-    const response = await fetch(`${API_URL}/api/auth/admin/delete-user`, {
+    const response = await fetch(`${API_URL}/api/auth/admin/remove-user`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -183,11 +201,17 @@ export const dataProvider: DataProvider = {
     });
 
     if (!response.ok) {
-      const error = await response.json().catch(() => ({ message: "Unknown error" }));
-      throw new Error(error.message || `HTTP error! status: ${response.status}`);
+      const error = await response
+        .json()
+        .catch(() => ({ message: "Unknown error" }));
+      throw new Error(
+        error.message || `HTTP error! status: ${response.status}`
+      );
     }
 
-    return { data: { id: params.id } as any };
+    // ra-core's DataProvider requires the record shape; the id is sufficient
+    // for downstream consumers since the actual delete has already happened.
+    return { data: { id: params.id } as never };
   },
 
   deleteMany: async (resource, params) => {
@@ -196,7 +220,9 @@ export const dataProvider: DataProvider = {
     }
 
     await Promise.all(
-      params.ids.map((id) => dataProvider.delete(resource, { id, previousData: {} as any }))
+      params.ids.map((id) =>
+        dataProvider.delete(resource, { id, previousData: {} as never })
+      )
     );
 
     return { data: params.ids };

@@ -3,11 +3,22 @@
   "private": true,
   "scripts": {
     "dev": "next dev -p 3000",
+    "dev:mock": "NEXT_PUBLIC_API_MOCKING=enabled next dev -p 3000",
     "build": "next build",
     "start": "next start",
     "analyze": "ANALYZE=true npm run build",
     "clean": "git clean -xdf .cache .turbo dist node_modules",
-    "typecheck": "tsc --noEmit --emitDeclarationOnly false"
+    "typecheck": "tsc --noEmit --emitDeclarationOnly false",
+    "migrate:dev": "DOTENV_CONFIG_PATH=../../.env.local tsx lib/db/migrations/run.ts dev up",
+    "migrate:dev:up": "DOTENV_CONFIG_PATH=../../.env.local tsx lib/db/migrations/run.ts dev up",
+    "migrate:dev:down": "DOTENV_CONFIG_PATH=../../.env.local tsx lib/db/migrations/run.ts dev down",
+    "migrate:dev:status": "DOTENV_CONFIG_PATH=../../.env.local tsx lib/db/migrations/run.ts dev status",
+    "migrate:prod": "DOTENV_CONFIG_PATH=../../.env.local tsx lib/db/migrations/run.ts prod up",
+    "migrate:prod:up": "DOTENV_CONFIG_PATH=../../.env.local tsx lib/db/migrations/run.ts prod up",
+    "migrate:prod:down": "DOTENV_CONFIG_PATH=../../.env.local tsx lib/db/migrations/run.ts prod down",
+    "migrate:prod:status": "DOTENV_CONFIG_PATH=../../.env.local tsx lib/db/migrations/run.ts prod status",
+    "seed:dev": "DOTENV_CONFIG_PATH=../../.env.local tsx lib/db/seeds/seed.ts dev",
+    "seed:prod": "DOTENV_CONFIG_PATH=../../.env.local tsx lib/db/seeds/seed.ts prod"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
@@ -15,9 +26,12 @@
     "@repo/auth": "workspace:*",
     "@repo/database": "workspace:*",
     "@repo/design": "workspace:*",
+    "@repo/email": "workspace:*",
     "@repo/next-config": "workspace:*",
     "@repo/observability": "workspace:*",
     "@repo/seo": "workspace:*",
+    "@tanstack/react-query": "^5.69.0",
+    "better-auth": "^1.4.7",
     "fuse.js": "^7.1.0",
     "import-in-the-middle": "^2.0.0",
     "lucide-react": "^0.556.0",
@@ -27,6 +41,7 @@
     "react": "19.2.1",
     "react-dom": "19.2.1",
     "react-hook-form": "^7.68.0",
+    "react-router-dom": "^7.1.1",
     "require-in-the-middle": "8.0.1",
     "zod": "^4.1.13"
   },
@@ -41,7 +56,14 @@
     "@types/react-dom": "19.2.3",
     "dotenv": "^17.2.3",
     "jsdom": "^27.2.0",
+    "msw": "^2.14.6",
     "tailwindcss": "^4.1.17",
+    "tsx": "^4.19.2",
     "typescript": "^5.9.3"
+  },
+  "msw": {
+    "workerDirectory": [
+      "public"
+    ]
   }
 }

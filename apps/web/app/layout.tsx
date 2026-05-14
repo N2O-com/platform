@@ -6,29 +6,30 @@ import { cn } from "@repo/design/lib/utils";
 import type { ReactNode } from "react";
 import { Footer } from "./components/footer";
 import { Header } from "./components/header";
+import { Providers } from "./providers";
 
 type RootLayoutProperties = {
   readonly children: ReactNode;
 };
 
-const RootLayout = ({ children }: RootLayoutProperties) => {
-  return (
-    <html
-      className={cn(fonts, "scroll-smooth")}
-      lang="en"
-      suppressHydrationWarning
-    >
-      <body>
-        <AnalyticsProvider>
-          <DesignSystemProvider>
+const RootLayout = ({ children }: RootLayoutProperties) => (
+  <html
+    className={cn(fonts, "scroll-smooth")}
+    lang="en"
+    suppressHydrationWarning
+  >
+    <body>
+      <AnalyticsProvider>
+        <DesignSystemProvider>
+          <Providers>
             <Header />
             {children}
             <Footer />
-          </DesignSystemProvider>
-        </AnalyticsProvider>
-      </body>
-    </html>
-  );
-};
+          </Providers>
+        </DesignSystemProvider>
+      </AnalyticsProvider>
+    </body>
+  </html>
+);
 
 export default RootLayout;

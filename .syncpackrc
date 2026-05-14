@@ -1,0 +1,54 @@
+{
+  "$schema": "https://unpkg.com/syncpack@15/dist/schema.json",
+  "lintFormatting": true,
+  "sortFirst": [
+    "name",
+    "version",
+    "private",
+    "description",
+    "type",
+    "main",
+    "module",
+    "types",
+    "exports",
+    "scripts",
+    "dependencies",
+    "devDependencies",
+    "peerDependencies"
+  ],
+  "semverGroups": [
+    {
+      "label": "Workspace protocol references are left alone",
+      "dependencies": ["@repo/**"],
+      "range": "workspace:*"
+    },
+    {
+      "label": "Everything else uses caret ranges so contributors can pick up patches without re-pinning",
+      "dependencies": ["**"],
+      "dependencyTypes": ["prod", "dev", "peer"],
+      "range": "^"
+    }
+  ],
+  "versionGroups": [
+    {
+      "label": "Internal packages always use the workspace protocol",
+      "dependencies": ["@repo/**"],
+      "pinVersion": "workspace:*"
+    },
+    {
+      "label": "React and React DOM stay on the same version across the monorepo",
+      "dependencies": ["react", "react-dom", "@types/react", "@types/react-dom"],
+      "policy": "sameRange"
+    },
+    {
+      "label": "Next.js stays aligned across apps",
+      "dependencies": ["next", "eslint-config-next"],
+      "policy": "sameRange"
+    },
+    {
+      "label": "TypeScript and Biome stay aligned across the repo",
+      "dependencies": ["typescript", "@biomejs/biome", "ultracite"],
+      "policy": "sameRange"
+    }
+  ]
+}
