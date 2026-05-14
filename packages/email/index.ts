@@ -4,20 +4,13 @@ import { InvitationEmail } from "./templates/invitation";
 import { ResetPassword } from "./templates/reset-password";
 import { VerifyEmail } from "./templates/verify-email";
 
-// Resend's constructor validates RESEND_TOKEN synchronously, so construction is
-// deferred until first property access. Unlike `@repo/database`, there is no
-// upstream hook to defer key resolution inside the SDK itself, so a thin Proxy
-// is the equivalent root-cause containment.
-let _resend: Resend | undefined;
-
-export const resend = new Proxy({} as Resend, {
-  get: (_target, prop) => {
-    if (!_resend) {
-      _resend = new Resend(process.env.RESEND_TOKEN);
-    }
-    return Reflect.get(_resend, prop);
-  },
-});
+// Placeholder satisfies Resend's constructor during `next build`, when
+// RESEND_TOKEN is not yet present. At runtime in deployed environments the
+// real env var is set; if it somehow isn't, the actual send call fails with
+// an auth error rather than blocking the build.
+export const resend = new Resend(
+  process.env.RESEND_TOKEN ?? "re_build_placeholder"
+);
 
 export * from "./templates/contact";
 export * from "./templates/invitation";

@@ -18,36 +18,16 @@ export const getDatabaseUrl = (env?: "dev" | "prod") => {
   return process.env.DATABASE_URL_DEV;
 };
 
-type NeonSql = ReturnType<typeof neon>;
+// Placeholder satisfies `neon()` URL parsing during `next build`'s page-data
+// collection, when DATABASE_URL is not yet present. At runtime in deployed
+// environments the real env var is set, so this fallback is never used; if it
+// somehow is, the actual connection attempt fails at first query.
+const BUILD_PLACEHOLDER_URL = "postgresql://placeholder@localhost/placeholder";
 
-// URL resolution and `neon()` construction are deferred until the first query.
-// This keeps `createDb()` safe to call at module load (e.g. during `next build`'s
-// page-data collection) when DATABASE_URL is not yet present. The error surfaces
-// only if a query actually runs without a connection string.
 export const createDb = <DB>(url?: string): Kysely<DB> => {
-  let cached: NeonSql | undefined;
-
-  const resolveNeon = (): NeonSql => {
-    if (cached) return cached;
-    const connectionString = url || getDatabaseUrl();
-    if (!connectionString) {
-      throw new Error(
-        `Database URL is not defined. Please set DATABASE_URL_${
-          process.env.NODE_ENV === "production" ? "PROD" : "DEV"
-        }`
-      );
-    }
-    cached = neon(connectionString);
-    return cached;
-  };
-
-  // NeonDialect invokes its `neon` field as a SQL executor; forward all args to
-  // the lazily-resolved instance.
-  const lazyNeon = ((...args: Parameters<NeonSql>) =>
-    resolveNeon()(...args)) as NeonSql;
-
+  const connectionString = url || getDatabaseUrl() || BUILD_PLACEHOLDER_URL;
   return new Kysely<DB>({
-    dialect: new NeonDialect({ neon: lazyNeon }),
+    dialect: new NeonDialect({ neon: neon(connectionString) }),
   });
 };
 
